@@ -22,8 +22,9 @@ var cleanAtrributes = function($el, $) {
     });
 };
 
-glob(rootDir + '/icons/*/*.svg', function(err, icons) {
+glob(path.join(rootDir, 'icons', '*', '*.svg'), function(err, icons) {
     icons.forEach(function(iconPath){
+        iconPath = iconPath.replace(/\//g, path.sep);
         var id = path.basename(iconPath, '.svg');
         var svg = fs.readFileSync(iconPath, 'utf-8');
         $ = cheerio.load(svg,{
@@ -33,7 +34,7 @@ glob(rootDir + '/icons/*/*.svg', function(err, icons) {
         cleanAtrributes($svg, $);
         var iconSvg = $svg.html();
         var viewBox = $svg.attr('viewBox');
-        var folder = iconPath.replace(path.join(rootDir, 'icons') + '/', '').replace( '/' + path.basename(iconPath), '');
+        var folder = iconPath.replace(path.join(rootDir, 'icons') + path.sep, '').replace( path.sep + path.basename(iconPath), '');
         var type = capitalize(camelcase(folder));
         var name = type + capitalize(camelcase(id));
         var location = iconPath.replace(path.join(rootDir, 'icons'), '').replace('.svg', '.js');
@@ -63,7 +64,8 @@ export default class ${name} extends React.Component {
     _.each(types, function(components, folder) {
         var iconsModule = _.map(components, function(loc, name){
             loc = loc.replace('.js', '');
-            loc = loc.replace('/'+folder, '');
+            loc = loc.replace(path.sep+folder, '');
+            loc = loc.replace('\\', '/');
             loc = "." + loc;
             return `export ${name} from '${loc}';`;
         }).join('\n') + '\n';
@@ -72,5 +74,3 @@ export default class ${name} extends React.Component {
     });
     console.log("IconBase.js");
 });
-
-
